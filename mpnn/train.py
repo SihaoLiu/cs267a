@@ -72,10 +72,10 @@ def run_train():
         '../result'
 
     initial_checkpoint = \
-        None#'../result/checkpoint/00012500_model.pth'
+        '../result/checkpoint/00125000_model.pth'
 
 
-    schduler = NullScheduler(lr=0.001)
+    schduler = NullScheduler(lr=0.0001)
 
     ## setup  -----------------------------------------------------------------------------
     os.makedirs(out_dir +'/checkpoint', exist_ok=True)
@@ -98,7 +98,7 @@ def run_train():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 28 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 25 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
 
     train_dataset = ChampsDataset(
@@ -267,7 +267,7 @@ def run_train():
                 # learning rate schduler -------------
                 lr = schduler(iter)
                 if lr<0 : break
-                lr = lr * 0.9925 ** (iter / 1000)
+                #lr = lr * 0.9925 ** (iter / 1000)
                 adjust_learning_rate(optimizer, lr)
                 rate = get_learning_rate(optimizer)
                 

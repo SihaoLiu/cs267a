@@ -815,5 +815,5 @@ if __name__ == '__main__':
     print( '%s: calling main function ... ' % os.path.basename(__file__))
 
     #run_check_0a()
-    #run_make_split()
-    run_convert_to_graph()
+    run_make_split()
+    #run_convert_to_graph()

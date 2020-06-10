@@ -13,7 +13,7 @@ def run_submit():
         '../final'
 
     initial_checkpoint = \
-        '../result/checkpoint/00112500_model.pth'
+        '../result/checkpoint/00125000_model.pth'
 
     csv_file = out_dir +'/submit/submit-%s-larger.csv'%(initial_checkpoint.split('/')[-1][:-4])
 
@@ -33,7 +33,7 @@ def run_submit():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 50 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 55 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
     test_dataset = ChampsDataset(
                 mode ='test',
