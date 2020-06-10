@@ -1,0 +1,10 @@
+# cache
+*.pyc
+__pycache__
+
+# IDE
+.vscode
+.idea
+
+# old
+old
