@@ -72,7 +72,7 @@ def run_train():
         '../result'
 
     initial_checkpoint = \
-        None
+        None#'../result/checkpoint/00012500_model.pth'
 
 
     schduler = NullScheduler(lr=0.001)

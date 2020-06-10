@@ -1,8 +1,10 @@
 # data input
 input
+input.tar.gz
 
 # result
 result
+final
 
 # cache
 *.pyc

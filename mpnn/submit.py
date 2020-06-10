@@ -10,12 +10,10 @@ from data import *
 def run_submit():
 
     out_dir = \
-        '/root/share/project/kaggle/2019/champs_scalar/result/zzz'
+        '../final'
 
     initial_checkpoint = \
-        '/root/share/project/kaggle/2019/champs_scalar/result/backup/00370000_model.convert.pth'
-        #'/root/share/project/kaggle/2019/champs_scalar/result/backup/00370000_model.pth'
-
+        '../result/checkpoint/00112500_model.pth'
 
     csv_file = out_dir +'/submit/submit-%s-larger.csv'%(initial_checkpoint.split('/')[-1][:-4])
 
@@ -35,30 +33,17 @@ def run_submit():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 20 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 50 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
-    if 1:## <debug>
-        test_dataset = ChampsDataset(
-                    mode ='train',
-                    csv  ='train',
-                    #split='debug_split_by_mol.1000.npy',
-                    split='valid_split_by_mol.5000.npy',
-                    augment=None,
-        )
-
-    #------------
-    if 0:
-        test_dataset = ChampsDataset(
-                    mode ='test',
-                    csv  ='test',
-                    #split='debug_split_by_mol.1000.npy',
-                    split=None,
-                    augment=None,
-        )
+    test_dataset = ChampsDataset(
+                mode ='test',
+                csv  ='test_submit',
+                split=None,
+                augment=None,
+    )
     test_loader  = DataLoader(
                 test_dataset,
                 sampler     = SequentialSampler(test_dataset),
-                #sampler     = RandomSampler(train_dataset),
                 batch_size  = batch_size,
                 drop_last   = False,
                 num_workers = 0,
@@ -108,7 +93,9 @@ def run_submit():
 
         #---
         batch_size = len(infor)
-        test_id.extend(list(np.concatenate([infor[b][2] for b in range(batch_size)])))
+        extracted_id = [infor[b][2] for b in range(batch_size)]
+        list_extracted_id = list(np.concatenate(extracted_id))
+        test_id.extend(list_extracted_id)
 
         test_predict.append(predict.data.cpu().numpy())
         test_coupling_type.append(coupling_index[:,2].data.cpu().numpy())
@@ -131,7 +118,24 @@ def run_submit():
     predict  = np.concatenate(test_predict)
     if test_dataset.mode == 'test':
         df = pd.DataFrame(list(zip(id, predict)), columns =['id', 'scalar_coupling_constant'])
-        df.to_csv(csv_file,index=False)
+        print('head of incorrected result:')
+        print(df.head())
+        # Merge with value that already exists in train set
+        data_dir = '../input/champs-scalar-coupling/'
+        train_df = pd.read_csv(data_dir + 'train.csv')
+        test_df = pd.read_csv(data_dir + 'test_submit.csv')
+        # Merge with Test Set first
+        submit_test_df = pd.merge(df, test_df, on = ['id'])
+        # Merge with Train Set
+        submit_test_train_df = pd.merge(submit_test_df, train_df, how='left', on=['molecule_name', 'atom_index_0', 'atom_index_1', 'type'])
+        # Update from Training Set
+        submit_test_train_df['scalar_coupling_constant'] = submit_test_train_df['scalar_coupling_constant_y'].fillna(submit_test_train_df['scalar_coupling_constant_x'])
+        # Drop useless column
+        final = submit_test_train_df.drop(['scalar_coupling_constant_x', 'scalar_coupling_constant_y', 'molecule_name', 'atom_index_0', 'atom_index_1', 'type', 'id_y'], axis=1).rename(columns={'id_x': 'id'})
+        print('head of final result:')
+        print(final.head())
+        # Write to file
+        final.to_csv(csv_file,index=False)
 
         log.write('id        = %d\n'%len(id))
         log.write('predict   = %d\n'%len(predict))

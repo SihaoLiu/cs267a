@@ -29,7 +29,7 @@ class ChampsDataset(Dataset):
         self.augment = augment
 
         self.df = pd.read_csv(DATA_DIR + '/%s.csv'%csv)
-
+        print(f"shape = {self.df.shape}")
         if split is not None:
             self.id = np.load(DATA_DIR + '/split/%s'%split,allow_pickle=True)
         else:
@@ -55,6 +55,8 @@ class ChampsDataset(Dataset):
 
         molecule_name = self.id[index]
         graph_file = DATA_DIR + '/structure_graph/%s.pickle'%molecule_name
+        if self.csv == 'test_submit':
+            graph_file = DATA_DIR + '/submit_graph/%s.pickle'%molecule_name
         graph = read_pickle_from_file(graph_file)
         assert(graph.molecule_name==molecule_name)
 
