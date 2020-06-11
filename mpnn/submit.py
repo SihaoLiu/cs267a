@@ -131,7 +131,7 @@ def run_submit():
 	# Count number of filled from training set
         num_filled = submit_test_train_df['scalar_coupling_constant_y'].count()
         test_size = submit_test_train_df['scalar_coupling_constant_y'].size
-        print(f'{num_filled}/{test_size}, {num_filled / test_size}% are corrected from Traiining set')
+        print(f'{num_filled}/{test_size}, {num_filled / test_size * 100}% are corrected from Traiining set')
         # Update from Training Set
         submit_test_train_df['scalar_coupling_constant'] = submit_test_train_df['scalar_coupling_constant_y'].fillna(submit_test_train_df['scalar_coupling_constant_x'])
         # Drop useless column
