@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
 from common  import *
 from model   import *
@@ -72,10 +72,10 @@ def run_train():
         '../result'
 
     initial_checkpoint = \
-        '../result/checkpoint/00125000_model.pth'
+        '../result/checkpoint/00137500_model.pth'
 
 
-    schduler = NullScheduler(lr=0.0001)
+    schduler = NullScheduler(lr=0.0005)
 
     ## setup  -----------------------------------------------------------------------------
     os.makedirs(out_dir +'/checkpoint', exist_ok=True)
@@ -98,7 +98,7 @@ def run_train():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 25 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 60 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
 
     train_dataset = ChampsDataset(
@@ -267,7 +267,7 @@ def run_train():
                 # learning rate schduler -------------
                 lr = schduler(iter)
                 if lr<0 : break
-                #lr = lr * 0.9925 ** (iter / 1000)
+                lr = lr * 0.985 ** (iter / 1000)
                 adjust_learning_rate(optimizer, lr)
                 rate = get_learning_rate(optimizer)
                 
