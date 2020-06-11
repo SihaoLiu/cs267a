@@ -13,7 +13,7 @@ def run_submit():
         '../final'
 
     initial_checkpoint = \
-        '../result/checkpoint/00125000_model.pth'
+        '../result/checkpoint/00147500_model.pth'
 
     csv_file = out_dir +'/submit/submit-%s-larger.csv'%(initial_checkpoint.split('/')[-1][:-4])
 
@@ -33,7 +33,7 @@ def run_submit():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 55 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 60 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
     test_dataset = ChampsDataset(
                 mode ='test',
@@ -128,6 +128,10 @@ def run_submit():
         submit_test_df = pd.merge(df, test_df, on = ['id'])
         # Merge with Train Set
         submit_test_train_df = pd.merge(submit_test_df, train_df, how='left', on=['molecule_name', 'atom_index_0', 'atom_index_1', 'type'])
+	# Count number of filled from training set
+        num_filled = submit_test_train_df['scalar_coupling_constant_y'].count()
+        test_size = submit_test_train_df['scalar_coupling_constant_y'].size
+        print(f'{num_filled}/{test_size}, {num_filled / test_size}% are corrected from Traiining set')
         # Update from Training Set
         submit_test_train_df['scalar_coupling_constant'] = submit_test_train_df['scalar_coupling_constant_y'].fillna(submit_test_train_df['scalar_coupling_constant_x'])
         # Drop useless column

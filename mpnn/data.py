@@ -676,9 +676,9 @@ def load_csv():
 
     #coupling
     df_train = pd.read_csv(DATA_DIR + '/train.csv')
-    df_test  = pd.read_csv(DATA_DIR + '/test_submit.csv')
+    df_test  = pd.read_csv(DATA_DIR + '/test.csv')
     df_test['scalar_coupling_constant']=0
-    df_scalar_coupling = df_test#pd.concat([df_train,df_test])
+    df_scalar_coupling = pd.concat([df_train,df_test])
     df_scalar_coupling_contribution = pd.read_csv(DATA_DIR + '/scalar_coupling_contributions.csv')
     df_scalar_coupling = pd.merge(df_scalar_coupling, df_scalar_coupling_contribution,
             how='left', on=['molecule_name','atom_index_0','atom_index_1','atom_index_0','type'])
@@ -755,7 +755,7 @@ def do_one(p):
 
 ##----
 def run_convert_to_graph():
-    graph_dir = '../input/champs-scalar-coupling/submit_graph'
+    graph_dir = '../input/champs-scalar-coupling/structure_graph'
     os.makedirs(graph_dir, exist_ok=True)
 
     gb_structure, gb_scalar_coupling = load_csv()
@@ -815,5 +815,5 @@ if __name__ == '__main__':
     print( '%s: calling main function ... ' % os.path.basename(__file__))
 
     #run_check_0a()
-    run_make_split()
-    #run_convert_to_graph()
+    #run_make_split()
+    run_convert_to_graph()
