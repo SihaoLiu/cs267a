@@ -81,7 +81,7 @@ def run_train():
         '../result/checkpoint/00175000_model.pth'
 
 
-    schduler = NullScheduler(lr=0.001)
+    schduler = NullScheduler(lr=0.0005)
 
     ## setup  -----------------------------------------------------------------------------
     os.makedirs(out_dir +'/checkpoint', exist_ok=True)
@@ -104,7 +104,7 @@ def run_train():
 
     ## dataset ----------------------------------------
     log.write('** dataset setting **\n')
-    batch_size = 60 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
+    batch_size = 32 #*2 #280*2 #256*4 #128 #256 #512  #16 #32
 
 
     train_dataset = ChampsDataset(
