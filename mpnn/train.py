@@ -1,8 +1,8 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
-from common  import *
-from model   import *
+from common import *
+from model_schnet import *
 from dataset import *
 
 
@@ -68,14 +68,20 @@ def do_valid(net, valid_loader):
 
 def run_train():
 
+
+    run_with_multi_gpu = False
+    
     out_dir = \
         '../result'
 
+    schnet_checkpoint = \
+        '../result/schnet-checkpoint/00010000_model.pth'
+
     initial_checkpoint = \
-        '../result/checkpoint/00137500_model.pth'
+        '../result/checkpoint/00175000_model.pth'
 
 
-    schduler = NullScheduler(lr=0.0005)
+    schduler = NullScheduler(lr=0.001)
 
     ## setup  -----------------------------------------------------------------------------
     os.makedirs(out_dir +'/checkpoint', exist_ok=True)
@@ -150,7 +156,26 @@ def run_train():
 
     log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
     if initial_checkpoint is not None:
-        net.load_state_dict(torch.load(initial_checkpoint, map_location=lambda storage, loc: storage))
+        # -- load schnet checkpoint
+        pre_trained_state_dict = torch.load(schnet_checkpoint, map_location=lambda storage, loc: storage)
+        # -- multi gpu modification
+        initial_state_dict =  torch.load(initial_checkpoint, map_location=lambda storage, loc: storage)
+        if run_with_multi_gpu:
+            for k, v in initial_state_dict.items():
+                if 'encoder.module' in k:
+                    pre_trained_state_dict[k] = v
+                else:
+                    new_k = k.replace('encoder', 'encoder.module')
+                    pre_trained_state_dict[new_k] = v
+        else:
+            for k, v in initial_state_dict.items():
+                if 'encoder.module' in k:
+                    new_k = k.replace('encoder.module', 'encoder')
+                    pre_trained_state_dict[new_k] = v
+                else:
+                    pre_trained_state_dict[k] = v
+        net.load_state_dict(pre_trained_state_dict)
+        #
 
     log.write('%s\n'%(type(net)))
     log.write('\n')
@@ -182,12 +207,11 @@ def run_train():
     start_epoch= 0
     rate       = 0
     if initial_checkpoint is not None:
-        initial_optimizer = initial_checkpoint.replace('_model.pth','_optimizer.pth')
+        initial_optimizer = schnet_checkpoint.replace('_model.pth','_optimizer.pth')
         if os.path.exists(initial_optimizer):
             checkpoint  = torch.load(initial_optimizer)
-            start_iter  = checkpoint['iter' ]
+            start_iter  = checkpoint['iter']
             start_epoch = checkpoint['epoch']
-
             optimizer.load_state_dict(checkpoint['optimizer'])
         pass
 

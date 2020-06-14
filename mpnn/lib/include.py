@@ -10,8 +10,8 @@ import PIL
 import cv2
 import matplotlib
 #matplotlib.use('TkAgg')
-print('matplotlib.get_backend : ', matplotlib.get_backend())
-print(matplotlib.__version__)
+#print('matplotlib.get_backend : ', matplotlib.get_backend())
+#print(matplotlib.__version__)
 
 
 # torch libs

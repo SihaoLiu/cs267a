@@ -9,11 +9,13 @@ from data import *
 
 def run_submit():
 
+    run_with_multi_gpu = False
+
     out_dir = \
         '../final'
 
     initial_checkpoint = \
-        '../result/checkpoint/00147500_model.pth'
+        '../result/checkpoint/00175000_model.pth'
 
     csv_file = out_dir +'/submit/submit-%s-larger.csv'%(initial_checkpoint.split('/')[-1][:-4])
 
@@ -60,8 +62,26 @@ def run_submit():
     net = Net(node_dim=NODE_DIM,edge_dim=EDGE_DIM, num_target=NUM_TARGET).cuda()
 
     log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
-    net.load_state_dict(torch.load(initial_checkpoint, map_location=lambda storage, loc: storage))
-
+    # -- multi gpu modification
+    initial_state_dict =  torch.load(initial_checkpoint, map_location=lambda storage, loc: storage)
+    from collections import OrderedDict
+    pre_trained_state_dict = OrderedDict()
+    
+    if run_with_multi_gpu:
+        for k, v in initial_state_dict.items():
+            if 'encoder.module' in k:
+                pre_trained_state_dict[k] = v
+            else:
+                new_k = k.replace('encoder', 'encoder.module')
+                pre_trained_state_dict[new_k] = v
+    else:
+        for k, v in initial_state_dict.items():
+            if 'encoder.module' in k:
+                new_k = k.replace('encoder.module', 'encoder')
+                pre_trained_state_dict[new_k] = v
+            else:
+                pre_trained_state_dict[k] = v
+    net.load_state_dict(pre_trained_state_dict)
 
     log.write('%s\n'%(type(net)))
     log.write('\n')
