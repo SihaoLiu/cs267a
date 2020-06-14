@@ -792,7 +792,6 @@ def run_make_split():
     debug_split = molecule_names[:1000]
 
     np.save(split_dir + '/debug_split_by_mol.%d.npy'%len(debug_split), debug_split)
-    print(debug_split)  #'dsgdb9nsd_001679'
 
     np.random.shuffle(molecule_names)
     if 1: #just random
@@ -800,9 +799,12 @@ def run_make_split():
         num_all   = len(molecule_names)
         num_valid = 5000
         num_train = num_all - num_valid
-        train_split = molecule_names[num_valid:]
-        valid_split = molecule_names[:num_valid]
-
+        train_split = np.sort(molecule_names[num_valid:])
+        valid_split = np.sort(molecule_names[:num_valid])
+        print(f'train size = {train_split.size}, with head as ')
+        print(train_split[:10])
+        print(f'valid size = {valid_split.size}, with head as ')
+        print(valid_split[:10])
         np.save(split_dir + '/train_split_by_mol.%d.npy'%num_train,train_split)
         np.save(split_dir + '/valid_split_by_mol.%d.npy'%num_valid,valid_split)
 
@@ -815,5 +817,5 @@ if __name__ == '__main__':
     print( '%s: calling main function ... ' % os.path.basename(__file__))
 
     #run_check_0a()
-    #run_make_split()
-    run_convert_to_graph()
+    run_make_split()
+    #run_convert_to_graph()

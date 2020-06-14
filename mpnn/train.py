@@ -2,7 +2,7 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
 from common import *
-from model_schnet import *
+from model_schnet_mid import *
 from dataset import *
 
 
@@ -174,7 +174,15 @@ def run_train():
                     pre_trained_state_dict[new_k] = v
                 else:
                     pre_trained_state_dict[k] = v
-        net.load_state_dict(pre_trained_state_dict)
+        import collections
+        schnet_mid_dict = collections.OrderedDict()
+        for k, v in pre_trained_state_dict.items():
+            if 'interactions.0' in k:
+                new_k = k.replace('interactions.0', 'interaction')
+                schnet_mid_dict[new_k] = v
+            else:
+                schnet_mid_dict[k] = v
+        net.load_state_dict(schnet_mid_dict)
         #
 
     log.write('%s\n'%(type(net)))
@@ -266,7 +274,7 @@ def run_train():
                 if (iter % iter_log==0):
                     print('\r',end='',flush=True)
                     asterisk = '*' if iter in iter_save else ' '
-                    log.write('%0.5f  %5.1f%s %5.1f |  %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f | %+5.3f %5.2f %+0.2f | %+5.3f | %s' % (\
+                    log.write('%0.7f  %5.1f%s %5.1f |  %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f | %+5.3f %5.2f %+0.2f | %+5.3f | %s' % (\
                              rate, iter/1000, asterisk, epoch,
                              *valid_loss[:11],
                              train_loss[0],
@@ -327,7 +335,7 @@ def run_train():
 
                 print('\r',end='',flush=True)
                 asterisk = ' '
-                print('%0.5f  %5.1f%s %5.1f | %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f | %+5.3f %5.2f %+0.2f | %+5.3f | %s' % (\
+                print('%0.7f  %5.1f%s %5.1f | %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f, %+0.3f | %+5.3f %5.2f %+0.2f | %+5.3f | %s' % (\
                              rate, iter/1000, asterisk, epoch,
                              *valid_loss[:11],
                              batch_loss[0],
